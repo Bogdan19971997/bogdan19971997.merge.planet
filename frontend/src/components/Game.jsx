@@ -15,14 +15,18 @@ const Game = ({ onNavigate, gameStats, onStatsUpdate }) => {
   const [currentLevel, setCurrentLevel] = useState(gameStats?.level || 1);
   const [moves, setMoves] = useState(0);
 
-  // Update parent stats whenever local stats change
+  // Update parent stats whenever local stats change (with debounce to prevent infinite loops)
   useEffect(() => {
-    onStatsUpdate?.({
-      score,
-      coins,
-      level: currentLevel
-    });
-  }, [score, coins, currentLevel, onStatsUpdate]);
+    const timeoutId = setTimeout(() => {
+      onStatsUpdate?.({
+        score,
+        coins,
+        level: currentLevel
+      });
+    }, 100);
+    
+    return () => clearTimeout(timeoutId);
+  }, [score, coins, currentLevel]);
 
   const planetTypes = {
     1: { name: 'Mercury', color: 'from-gray-400 to-gray-600', emoji: '☿️' },
