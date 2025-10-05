@@ -40,7 +40,10 @@ const Menu = ({ onNavigate, gameStats }) => {
       description: 'Exclusive items & coins',
       icon: Crown,
       color: 'from-yellow-500 to-amber-600',
-      action: () => onNavigate('premium'),
+      action: () => {
+        playSound('click');
+        onNavigate('premium');
+      },
       badge: 'Premium'
     },
     {
