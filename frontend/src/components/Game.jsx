@@ -245,7 +245,7 @@ const Game = ({ onNavigate, gameStats, onStatsUpdate }) => {
 
   const levelUp = () => {
     const cost = gameUtils.calculateLevelUpCost(currentLevel);
-    if (coins >= cost && currentLevel < 1000000) {
+    if (coins >= cost && currentLevel < 10000000) {
       setCurrentLevel(currentLevel + 1);
       setCoins(coins - cost);
       playSound('level_up');
