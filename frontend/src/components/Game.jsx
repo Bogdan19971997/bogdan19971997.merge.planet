@@ -361,7 +361,7 @@ const Game = ({ onNavigate, gameStats, onStatsUpdate }) => {
                 playSound('click');
                 levelUp();
               }}
-              disabled={coins < gameUtils.calculateLevelUpCost(currentLevel) || currentLevel >= 1000000}
+              disabled={coins < gameUtils.calculateLevelUpCost(currentLevel) || currentLevel >= 10000000}
               className="w-full bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600"
             >
               Level Up
