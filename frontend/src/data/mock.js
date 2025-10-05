@@ -165,6 +165,32 @@ export const gameUtils = {
     const bonusChance = earthMergeLevel * 0.05;
     return Math.random() < (baseChance + bonusChance);
   },
+
+  checkBonusPlanetSpawn: () => {
+    // 25% chance to spawn bonus planet after merge
+    return Math.random() < 0.25;
+  },
+
+  spawnRandomPlanetOnGrid: (grid) => {
+    const emptySpots = [];
+    grid.forEach((row, rowIndex) => {
+      row.forEach((cell, colIndex) => {
+        if (!cell) emptySpots.push([rowIndex, colIndex]);
+      });
+    });
+    
+    if (emptySpots.length > 0) {
+      const randomSpot = emptySpots[Math.floor(Math.random() * emptySpots.length)];
+      return {
+        position: randomSpot,
+        planet: {
+          id: Date.now() + Math.random(),
+          level: Math.random() > 0.8 ? 2 : 1
+        }
+      };
+    }
+    return null;
+  },
   
   getSunDoubleTapReward: (currentCoins) => {
     return currentCoins; // Double the current coins
