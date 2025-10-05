@@ -63,7 +63,10 @@ const Menu = ({ onNavigate, gameStats }) => {
       description: 'View achievements & stats',
       icon: Users,
       color: 'from-pink-500 to-rose-600',
-      action: () => onNavigate('profile')
+      action: () => {
+        playSound('click');
+        onNavigate('profile');
+      }
     },
     {
       id: 'settings',
