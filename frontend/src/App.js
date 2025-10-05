@@ -126,18 +126,9 @@ function App() {
         );
       case 'settings':
         return (
-          <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4 flex items-center justify-center">
-            <div className="text-center">
-              <h1 className="text-4xl font-bold text-white mb-4">Settings</h1>
-              <p className="text-gray-300 mb-6">Customize your game experience!</p>
-              <button 
-                onClick={() => handleNavigation('menu')}
-                className="bg-gradient-to-r from-purple-500 to-blue-500 text-white px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition-opacity"
-              >
-                Back to Menu
-              </button>
-            </div>
-          </div>
+          <Settings 
+            onNavigate={handleNavigation} 
+          />
         );
       default:
         return <Menu onNavigate={handleNavigation} gameStats={gameStats} />;
