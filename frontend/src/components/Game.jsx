@@ -10,10 +10,19 @@ const Game = ({ onNavigate, gameStats, onStatsUpdate }) => {
   const { toast } = useToast();
   const [gameState, setGameState] = useState(mockGameData.initialGameState);
   const [selectedPlanet, setSelectedPlanet] = useState(null);
-  const [score, setScore] = useState(gameStats?.score || 0);
-  const [coins, setCoins] = useState(gameStats?.coins || 100);
-  const [currentLevel, setCurrentLevel] = useState(gameStats?.level || 1);
+  const [score, setScore] = useState(0);
+  const [coins, setCoins] = useState(100);
+  const [currentLevel, setCurrentLevel] = useState(1);
   const [moves, setMoves] = useState(0);
+
+  // Initialize from gameStats on mount
+  useEffect(() => {
+    if (gameStats) {
+      setScore(gameStats.score || 0);
+      setCoins(gameStats.coins || 100);
+      setCurrentLevel(gameStats.level || 1);
+    }
+  }, []);
 
   // Update parent stats whenever local stats change (with debounce to prevent infinite loops)
   useEffect(() => {
