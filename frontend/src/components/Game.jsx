@@ -75,8 +75,19 @@ const Game = ({ onNavigate, gameStats, onStatsUpdate }) => {
     let newLevel = planet2.level + 1;
     let newPlanet = { id: Date.now(), level: newLevel };
     
+    // Special case: Moon + Moon = Mars (Level 4)
+    if (planet1.type === 'moon' && planet2.type === 'moon') {
+      newPlanet = { id: Date.now(), level: 4 };
+      playSound('merge');
+      showSpecialEffect(rowIndex, colIndex, '🔴 Mars from Moons!');
+      
+      toast({
+        title: "🔴 Mars Created!",
+        description: "Two moons merged into Mars! Special combination!"
+      });
+    }
     // Special case: Earth merging has chance to create Moon
-    if (planet2.level === 3 && gameUtils.checkMoonChance(planet2.level)) {
+    else if (planet2.level === 3 && gameUtils.checkMoonChance(planet2.level)) {
       newPlanet = { id: Date.now(), type: 'moon', level: 'moon' };
       playSound('moon_bonus');
       showSpecialEffect(rowIndex, colIndex, '🌙 Moon Discovered!');
@@ -99,6 +110,22 @@ const Game = ({ onNavigate, gameStats, onStatsUpdate }) => {
     }
     
     newGrid[rowIndex][colIndex] = newPlanet;
+    
+    // Check for bonus planet spawn (25% chance)
+    if (gameUtils.checkBonusPlanetSpawn()) {
+      const bonusSpawn = gameUtils.spawnRandomPlanetOnGrid(newGrid);
+      if (bonusSpawn) {
+        newGrid[bonusSpawn.position[0]][bonusSpawn.position[1]] = bonusSpawn.planet;
+        showSpecialEffect(bonusSpawn.position[0], bonusSpawn.position[1], '✨ Bonus Planet!');
+        playSound('achievement');
+        
+        toast({
+          title: "✨ Bonus Planet!",
+          description: "A new planet appeared from cosmic energy!"
+        });
+      }
+    }
+    
     setGameState({ ...gameState, grid: newGrid });
     
     // Award coins and points
