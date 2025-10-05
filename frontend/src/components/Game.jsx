@@ -323,7 +323,7 @@ const Game = ({ onNavigate, gameStats, onStatsUpdate }) => {
               <Trophy className="w-5 h-5 text-yellow-400" />
               <div>
                 <p className="text-sm text-gray-400">Level</p>
-                <p className="text-xl font-bold text-white">{currentLevel.toLocaleString()}/1M</p>
+                <p className="text-xl font-bold text-white">{currentLevel.toLocaleString()}/10M</p>
               </div>
             </div>
           </Card>
