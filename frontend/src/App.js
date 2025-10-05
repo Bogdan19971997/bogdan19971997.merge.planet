@@ -136,12 +136,14 @@ function App() {
   };
 
   return (
-    <div className="App">
-      <BrowserRouter>
-        {renderScreen()}
-      </BrowserRouter>
-      <Toaster />
-    </div>
+    <AudioProvider>
+      <div className="App">
+        <BrowserRouter>
+          {renderScreen()}
+        </BrowserRouter>
+        <Toaster />
+      </div>
+    </AudioProvider>
   );
 }
 
