@@ -64,11 +64,21 @@ const Game = ({ onNavigate, gameStats, onStatsUpdate }) => {
       setSelectedPlanet(null);
       setMoves(moves + 1);
       
+      // Show reward toast
+      toast({
+        title: `${planetTypes[newLevel].name} Created!`,
+        description: `+${coinReward} coins, +${scoreReward} points`
+      });
+      
       // Check for level completion
       if (newLevel === 6) {
         // Bonus for creating max level planet
         setCoins(coins + coinReward + 100);
         setScore(score + scoreReward + 500);
+        toast({
+          title: "🎉 Saturn Achieved!",
+          description: "Bonus: +100 coins, +500 points!"
+        });
       }
     }
   };
