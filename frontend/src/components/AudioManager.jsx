@@ -68,27 +68,32 @@ export const AudioProvider = ({ children }) => {
   }, [settings.soundEnabled]);
 
   const playSound = (soundKey, category = 'game', volume = null) => {
-    if (!settings.soundEnabled) return;
+    if (!settings.soundEnabled) {
+      console.log(`🔇 Sound disabled: ${soundKey}`);
+      return;
+    }
     
     try {
-      const audio = audioCache[soundKey];
-      if (!audio) return;
-      
       // Calculate final volume
       let finalVolume = settings.masterVolume * settings.sfxVolume;
       if (volume !== null) {
         finalVolume *= volume;
       }
       
-      audio.volume = Math.max(0, Math.min(1, finalVolume));
-      audio.currentTime = 0;
+      console.log(`🔊 Attempting to play sound: ${soundKey} with volume: ${finalVolume}`);
       
-      // Create audio feedback through Web Audio API oscillator for development
-      if (settings.soundEnabled && finalVolume > 0) {
+      // Create audio feedback through Web Audio API for development
+      if (finalVolume > 0) {
         createSoundFeedback(soundKey, finalVolume);
       }
       
-      // In production, use: audio.play().catch(e => console.warn('Audio play failed:', e));
+      // In production, load and play actual audio files
+      // const audio = audioCache[soundKey];
+      // if (audio) {
+      //   audio.volume = Math.max(0, Math.min(1, finalVolume));
+      //   audio.currentTime = 0;
+      //   audio.play().catch(e => console.warn('Audio play failed:', e));
+      // }
     } catch (error) {
       console.warn('Failed to play sound:', soundKey, error);
     }
