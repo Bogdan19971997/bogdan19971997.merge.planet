@@ -152,7 +152,7 @@ const Game = ({ onNavigate, gameStats, onStatsUpdate }) => {
     playSound('coin_earn');
     
     // Show reward toast
-    const planetName = planetTypes[newLevel]?.name || planetTypes[newPlanet.type]?.name || 'Unknown';
+    const planetName = planetTypes[rewardLevel]?.name || planetTypes[newPlanet.type]?.name || 'Unknown';
     toast({
       title: `${planetName} Created!`,
       description: `+${coinReward} coins, +${scoreReward} points`
@@ -160,7 +160,7 @@ const Game = ({ onNavigate, gameStats, onStatsUpdate }) => {
     
     // Check for level completion
     if (gameUtils.checkLevelCompletion(score + scoreReward, currentLevel)) {
-      setCurrentLevel(prev => Math.min(prev + 1, 1000000));
+      setCurrentLevel(prev => Math.min(prev + 1, 10000000));
       playSound('level_up');
       toast({
         title: `🎉 Level ${currentLevel + 1}!`,
