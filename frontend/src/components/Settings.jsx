@@ -251,6 +251,20 @@ const Settings = ({ onNavigate }) => {
 
             <div className="space-y-4">
               <Button 
+                onClick={() => {
+                  playSound('achievement', 'game', 1.0);
+                  toast({
+                    title: "🔊 Sound Test",
+                    description: "Did you hear the achievement sound?"
+                  });
+                }}
+                variant="outline"
+                className="w-full border-blue-600 text-blue-300 hover:bg-blue-800/20"
+              >
+                🔊 Test Sound
+              </Button>
+              
+              <Button 
                 onClick={resetSettings}
                 variant="outline"
                 className="w-full border-yellow-600 text-yellow-300 hover:bg-yellow-800/20"
