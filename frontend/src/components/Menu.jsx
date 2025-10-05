@@ -4,6 +4,7 @@ import { Card } from './ui/card';
 import { Badge } from './ui/badge';
 import { Play, ShoppingCart, Crown, Settings, Trophy, Star, Users } from 'lucide-react';
 import { mockGameData } from '../data/mock';
+import { useAudio } from './AudioManager';
 
 const Menu = ({ onNavigate, gameStats }) => {
   const [selectedFeature, setSelectedFeature] = useState(null);
