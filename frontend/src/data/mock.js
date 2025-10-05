@@ -71,7 +71,7 @@ export const mockGameData = {
     bonusPlanetChance: 0.25, // 25% chance to spawn bonus planet on merge
     autoSpawnRate: 0.3, // 30% chance to auto-spawn planets periodically
     moonMergeLevel: 4, // Moons merge into Mars level
-    initialPlanetDensity: 0.6 // 60% of grid filled initially
+    initialPlanetDensity: 0.65 // 65% of grid filled initially
   },
   
   achievements: [
