@@ -98,7 +98,10 @@ const Menu = ({ onNavigate, gameStats }) => {
 
           {/* Quick Play Button */}
           <Button 
-            onClick={() => onNavigate('game')}
+            onClick={() => {
+              playSound('click');
+              onNavigate('game');
+            }}
             className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-8 py-4 text-lg font-semibold rounded-xl shadow-2xl transform hover:scale-105 transition-all duration-200"
           >
             <Play className="w-6 h-6 mr-3" />
