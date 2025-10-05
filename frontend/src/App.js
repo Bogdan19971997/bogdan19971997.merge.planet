@@ -5,7 +5,9 @@ import Menu from "./components/Menu";
 import Game from "./components/Game";
 import Shop from "./components/Shop";
 import PremiumShop from "./components/PremiumShop";
+import Settings from "./components/Settings";
 import { Toaster } from "./components/ui/toaster";
+import { AudioProvider } from "./components/AudioManager";
 import { mockGameData } from "./data/mock";
 
 function App() {
