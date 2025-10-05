@@ -2,16 +2,27 @@ import React, { useState, useEffect } from 'react';
 import { Button } from './ui/button';
 import { Card } from './ui/card';
 import { Badge } from './ui/badge';
-import { Coins, Star, Trophy, RotateCcw } from 'lucide-react';
+import { Coins, Star, Trophy, RotateCcw, ArrowLeft, Home, ShoppingCart } from 'lucide-react';
 import { mockGameData } from '../data/mock';
+import { useToast } from '../hooks/use-toast';
 
-const Game = () => {
+const Game = ({ onNavigate, gameStats, onStatsUpdate }) => {
+  const { toast } = useToast();
   const [gameState, setGameState] = useState(mockGameData.initialGameState);
   const [selectedPlanet, setSelectedPlanet] = useState(null);
-  const [score, setScore] = useState(0);
-  const [coins, setCoins] = useState(100);
-  const [currentLevel, setCurrentLevel] = useState(1);
+  const [score, setScore] = useState(gameStats?.score || 0);
+  const [coins, setCoins] = useState(gameStats?.coins || 100);
+  const [currentLevel, setCurrentLevel] = useState(gameStats?.level || 1);
   const [moves, setMoves] = useState(0);
+
+  // Update parent stats whenever local stats change
+  useEffect(() => {
+    onStatsUpdate?.({
+      score,
+      coins,
+      level: currentLevel
+    });
+  }, [score, coins, currentLevel, onStatsUpdate]);
 
   const planetTypes = {
     1: { name: 'Mercury', color: 'from-gray-400 to-gray-600', emoji: '☿️' },
