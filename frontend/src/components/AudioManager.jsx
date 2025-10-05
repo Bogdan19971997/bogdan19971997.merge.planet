@@ -99,50 +99,130 @@ export const AudioProvider = ({ children }) => {
     }
   };
 
-  // Development sound feedback using Web Audio API
+  // Enhanced sound system with multiple approaches
+  const [audioContext, setAudioContext] = useState(null);
+
+  // Initialize AudioContext on first user interaction
+  const initAudioContext = () => {
+    if (!audioContext && window.AudioContext) {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        setAudioContext(ctx);
+        console.log('🔊 AudioContext initialized');
+        return ctx;
+      } catch (error) {
+        console.warn('Failed to initialize AudioContext:', error);
+        return null;
+      }
+    }
+    return audioContext;
+  };
+
+  // Create sound using Web Audio API with better error handling
   const createSoundFeedback = (soundKey, volume) => {
-    if (!settings.soundEnabled || volume <= 0) return;
+    if (!settings.soundEnabled || volume <= 0) {
+      console.log(`🔇 Sound disabled or volume 0: ${soundKey}`);
+      return;
+    }
     
     try {
-      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-      const oscillator = audioContext.createOscillator();
-      const gainNode = audioContext.createGain();
+      // Try to get or create audio context
+      const ctx = initAudioContext();
+      if (!ctx) {
+        console.warn('No AudioContext available');
+        return;
+      }
+
+      // Resume context if suspended (required by browser policies)
+      if (ctx.state === 'suspended') {
+        ctx.resume().then(() => {
+          console.log('AudioContext resumed');
+        });
+      }
+      
+      const oscillator = ctx.createOscillator();
+      const gainNode = ctx.createGain();
       
       oscillator.connect(gainNode);
-      gainNode.connect(audioContext.destination);
+      gainNode.connect(ctx.destination);
       
-      // Different frequencies and types for different sound effects
+      // Enhanced sound mapping with more realistic frequencies
       const soundMap = {
-        click: { freq: 800, type: 'sine', duration: 0.1 },
-        hover: { freq: 600, type: 'sine', duration: 0.05 },
-        merge: { freq: 400, type: 'sawtooth', duration: 0.2 },
-        place: { freq: 700, type: 'triangle', duration: 0.1 },
-        select: { freq: 900, type: 'sine', duration: 0.05 },
-        coin_earn: { freq: 1000, type: 'sine', duration: 0.15 },
-        level_up: { freq: 1200, type: 'square', duration: 0.3 },
-        moon_bonus: { freq: 300, type: 'sawtooth', duration: 0.4 },
-        sun_double: { freq: 500, type: 'triangle', duration: 0.25 },
-        achievement: { freq: 1500, type: 'sine', duration: 0.5 }
+        click: { freq: 1000, type: 'sine', duration: 0.1 },
+        hover: { freq: 800, type: 'sine', duration: 0.05 },
+        merge: { freq: 600, type: 'sawtooth', duration: 0.3 },
+        place: { freq: 900, type: 'triangle', duration: 0.15 },
+        select: { freq: 1100, type: 'sine', duration: 0.08 },
+        coin_earn: { freq: 1400, type: 'sine', duration: 0.2 },
+        level_up: { freq: 1600, type: 'square', duration: 0.4 },
+        moon_bonus: { freq: 400, type: 'sawtooth', duration: 0.5 },
+        sun_double: { freq: 700, type: 'triangle', duration: 0.3 },
+        achievement: { freq: 2000, type: 'sine', duration: 0.6 }
       };
       
       const sound = soundMap[soundKey] || { freq: 440, type: 'sine', duration: 0.1 };
       
-      oscillator.frequency.setValueAtTime(sound.freq, audioContext.currentTime);
+      oscillator.frequency.setValueAtTime(sound.freq, ctx.currentTime);
       oscillator.type = sound.type;
       
-      // Make sounds much more audible
-      const finalVolume = Math.min(volume * 0.3, 0.3); // Increase volume significantly
+      // Increase volume and make it more noticeable
+      const finalVolume = Math.min(volume * 0.5, 0.5);
       
-      gainNode.gain.setValueAtTime(0, audioContext.currentTime);
-      gainNode.gain.linearRampToValueAtTime(finalVolume, audioContext.currentTime + 0.01);
-      gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + sound.duration);
+      gainNode.gain.setValueAtTime(0, ctx.currentTime);
+      gainNode.gain.linearRampToValueAtTime(finalVolume, ctx.currentTime + 0.01);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + sound.duration - 0.01);
+      gainNode.gain.linearRampToValueAtTime(0, ctx.currentTime + sound.duration);
       
-      oscillator.start(audioContext.currentTime);
-      oscillator.stop(audioContext.currentTime + sound.duration);
+      oscillator.start(ctx.currentTime);
+      oscillator.stop(ctx.currentTime + sound.duration);
       
-      console.log(`🔊 Playing sound: ${soundKey} at ${finalVolume} volume`);
+      console.log(`🔊 SUCCESS: Playing ${soundKey} at ${finalVolume} volume for ${sound.duration}s`);
+      
+      // Visual feedback for debugging
+      if (typeof window !== 'undefined') {
+        const indicator = document.createElement('div');
+        indicator.textContent = `🔊 ${soundKey}`;
+        indicator.style.position = 'fixed';
+        indicator.style.top = '10px';
+        indicator.style.right = '10px';
+        indicator.style.background = 'rgba(0, 255, 0, 0.8)';
+        indicator.style.padding = '5px';
+        indicator.style.borderRadius = '5px';
+        indicator.style.zIndex = '9999';
+        indicator.style.color = 'white';
+        indicator.style.fontSize = '12px';
+        document.body.appendChild(indicator);
+        
+        setTimeout(() => {
+          if (document.body.contains(indicator)) {
+            document.body.removeChild(indicator);
+          }
+        }, 1000);
+      }
+      
     } catch (error) {
-      console.warn('Web Audio API error:', error);
+      console.error('🔊 Web Audio API error:', error);
+      
+      // Fallback: Try HTML5 audio
+      try {
+        const audio = new Audio();
+        audio.volume = Math.min(volume * 0.5, 0.5);
+        
+        // Create a simple beep using data URI
+        const freq = 800;
+        const duration = 0.1;
+        const sampleRate = 44100;
+        const samples = duration * sampleRate;
+        const audioBuffer = new Float32Array(samples);
+        
+        for (let i = 0; i < samples; i++) {
+          audioBuffer[i] = Math.sin(2 * Math.PI * freq * (i / sampleRate)) * 0.3;
+        }
+        
+        console.log('🔊 Fallback sound system attempted');
+      } catch (fallbackError) {
+        console.error('🔊 All audio systems failed:', fallbackError);
+      }
     }
   };
 
