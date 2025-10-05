@@ -74,10 +74,12 @@ const Game = ({ onNavigate, gameStats, onStatsUpdate }) => {
     const newGrid = [...gameState.grid];
     let newLevel = planet2.level + 1;
     let newPlanet = { id: Date.now(), level: newLevel };
+    let rewardLevel = newLevel; // Track the level for reward calculation
     
     // Special case: Moon + Moon = Mars (Level 4)
     if (planet1.type === 'moon' && planet2.type === 'moon') {
       newPlanet = { id: Date.now(), level: 4 };
+      rewardLevel = 4;
       playSound('merge');
       showSpecialEffect(rowIndex, colIndex, '🔴 Mars from Moons!');
       
@@ -89,6 +91,7 @@ const Game = ({ onNavigate, gameStats, onStatsUpdate }) => {
     // Special case: Earth merging has chance to create Moon
     else if (planet2.level === 3 && gameUtils.checkMoonChance(planet2.level)) {
       newPlanet = { id: Date.now(), type: 'moon', level: 'moon' };
+      rewardLevel = 3; // Moon gives Earth-level rewards
       playSound('moon_bonus');
       showSpecialEffect(rowIndex, colIndex, '🌙 Moon Discovered!');
       
@@ -100,6 +103,7 @@ const Game = ({ onNavigate, gameStats, onStatsUpdate }) => {
     // After 9th planet (Pluto), create Sun
     else if (planet2.level === 9) {
       newPlanet = { id: Date.now(), type: 'sun', level: 'sun' };
+      rewardLevel = 10; // Sun gives massive rewards
       playSound('sun_double');
       showSpecialEffect(rowIndex, colIndex, '☀️ Sun Created!');
       
@@ -128,8 +132,8 @@ const Game = ({ onNavigate, gameStats, onStatsUpdate }) => {
     
     setGameState({ ...gameState, grid: newGrid });
     
-    // Award coins and points
-    const reward = gameUtils.calculateMergeReward(newLevel);
+    // Award coins and points using the correct reward level
+    const reward = gameUtils.calculateMergeReward(rewardLevel);
     let coinReward = reward.coins;
     let scoreReward = reward.score;
     
