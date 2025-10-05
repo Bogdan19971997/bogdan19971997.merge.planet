@@ -62,12 +62,16 @@ export const mockGameData = {
   gameSettings: {
     gridSize: 6,
     maxPlanetLevel: 9,
-    maxGameLevel: 1000000,
+    maxGameLevel: 10000000, // 10 Million levels
     coinCostForNewPlanet: 20,
     coinCostForLevelUp: 100,
     initialCoins: 100,
     moonChance: 0.15, // 15% chance when merging Earth
-    sunDoubleTapWindow: 1000 // 1 second window for double tap
+    sunDoubleTapWindow: 1000, // 1 second window for double tap
+    bonusPlanetChance: 0.25, // 25% chance to spawn bonus planet on merge
+    autoSpawnRate: 0.3, // 30% chance to auto-spawn planets periodically
+    moonMergeLevel: 4, // Moons merge into Mars level
+    initialPlanetDensity: 0.6 // 60% of grid filled initially
   },
   
   achievements: [
