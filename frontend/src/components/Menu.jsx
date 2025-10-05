@@ -7,6 +7,7 @@ import { mockGameData } from '../data/mock';
 import { useAudio } from './AudioManager';
 
 const Menu = ({ onNavigate, gameStats }) => {
+  const { playSound } = useAudio();
   const [selectedFeature, setSelectedFeature] = useState(null);
 
   const menuItems = [
