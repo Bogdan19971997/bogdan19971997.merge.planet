@@ -52,7 +52,10 @@ const Menu = ({ onNavigate, gameStats }) => {
       description: 'Compete with other players',
       icon: Trophy,
       color: 'from-purple-500 to-indigo-600',
-      action: () => onNavigate('leaderboard')
+      action: () => {
+        playSound('click');
+        onNavigate('leaderboard');
+      }
     },
     {
       id: 'profile',
