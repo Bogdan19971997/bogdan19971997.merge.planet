@@ -68,8 +68,10 @@ export const AudioProvider = ({ children }) => {
   }, [settings.soundEnabled]);
 
   const playSound = (soundKey, category = 'game', volume = null) => {
+    console.log(`🔊 SOUND REQUEST: ${soundKey}, enabled: ${settings.soundEnabled}`);
+    
     if (!settings.soundEnabled) {
-      console.log(`🔇 Sound disabled: ${soundKey}`);
+      console.log(`🔇 Sound disabled globally: ${soundKey}`);
       return;
     }
     
@@ -80,22 +82,30 @@ export const AudioProvider = ({ children }) => {
         finalVolume *= volume;
       }
       
-      console.log(`🔊 Attempting to play sound: ${soundKey} with volume: ${finalVolume}`);
+      console.log(`🔊 SOUND CALC: ${soundKey} - Master: ${settings.masterVolume}, SFX: ${settings.sfxVolume}, Final: ${finalVolume}`);
       
-      // Create audio feedback through Web Audio API for development
+      // Initialize audio context on first interaction
+      initAudioContext();
+      
+      // Create audio feedback
       if (finalVolume > 0) {
         createSoundFeedback(soundKey, finalVolume);
+        
+        // Also try a simple beep as backup
+        if (window.speechSynthesis) {
+          // Use speech synthesis as another fallback
+          const utterance = new SpeechSynthesisUtterance('beep');
+          utterance.volume = 0;
+          utterance.rate = 10;
+          utterance.pitch = 0.1;
+          window.speechSynthesis.speak(utterance);
+        }
+      } else {
+        console.log(`🔇 Volume too low: ${finalVolume}`);
       }
       
-      // In production, load and play actual audio files
-      // const audio = audioCache[soundKey];
-      // if (audio) {
-      //   audio.volume = Math.max(0, Math.min(1, finalVolume));
-      //   audio.currentTime = 0;
-      //   audio.play().catch(e => console.warn('Audio play failed:', e));
-      // }
     } catch (error) {
-      console.warn('Failed to play sound:', soundKey, error);
+      console.error('🔊 CRITICAL: Sound system failed:', error);
     }
   };
 
