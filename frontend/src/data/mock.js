@@ -30,19 +30,99 @@ export const mockPremiumItems = [
   }
 ];
 
-// Enhanced planet system with all 9 planets + Moon + Sun
+// Enhanced planet system with all 9 planets + Moon + Sun - REALISTIC VISUALS
 export const planetTypes = {
-  1: { name: 'Mercury', color: 'from-gray-400 to-gray-600', emoji: '☿️', sound: 'mercury' },
-  2: { name: 'Venus', color: 'from-orange-400 to-yellow-500', emoji: '♀️', sound: 'venus' },
-  3: { name: 'Earth', color: 'from-blue-400 to-green-500', emoji: '🌍', sound: 'earth', special: 'moon_chance' },
-  4: { name: 'Mars', color: 'from-red-400 to-red-600', emoji: '♂️', sound: 'mars' },
-  5: { name: 'Jupiter', color: 'from-amber-500 to-orange-600', emoji: '♃', sound: 'jupiter' },
-  6: { name: 'Saturn', color: 'from-purple-400 to-indigo-600', emoji: '♄', sound: 'saturn' },
-  7: { name: 'Uranus', color: 'from-cyan-400 to-blue-600', emoji: '♅', sound: 'uranus' },
-  8: { name: 'Neptune', color: 'from-blue-600 to-indigo-700', emoji: '♆', sound: 'neptune' },
-  9: { name: 'Pluto', color: 'from-gray-600 to-purple-700', emoji: '♇', sound: 'pluto' },
-  'moon': { name: 'Moon', color: 'from-gray-200 to-gray-400', emoji: '🌙', sound: 'moon', special: true },
-  'sun': { name: 'Sun', color: 'from-yellow-300 to-orange-500', emoji: '☀️', sound: 'sun', special: 'double_coins' }
+  1: { 
+    name: 'Mercury', 
+    color: 'from-gray-500 to-gray-700', 
+    pattern: 'radial-gradient(circle at 30% 30%, #8C7853, #5C5C5C, #404040)',
+    emoji: '☿️', 
+    sound: 'mercury',
+    description: 'Closest to the Sun'
+  },
+  2: { 
+    name: 'Venus', 
+    color: 'from-yellow-500 to-orange-600', 
+    pattern: 'radial-gradient(circle at 35% 25%, #FFC649, #FF8C42, #E85D04)',
+    emoji: '♀️', 
+    sound: 'venus',
+    description: 'Hottest planet'
+  },
+  3: { 
+    name: 'Earth', 
+    color: 'from-blue-500 to-green-600', 
+    pattern: 'radial-gradient(circle at 40% 30%, #4A90E2, #2ECC71, #1B4F72, #0E4B99)',
+    emoji: '🌍', 
+    sound: 'earth', 
+    special: 'moon_chance',
+    description: 'Our home planet'
+  },
+  4: { 
+    name: 'Mars', 
+    color: 'from-red-500 to-red-700', 
+    pattern: 'radial-gradient(circle at 35% 25%, #FF6B4A, #C0392B, #922B21)',
+    emoji: '♂️', 
+    sound: 'mars',
+    description: 'The Red Planet'
+  },
+  5: { 
+    name: 'Jupiter', 
+    color: 'from-orange-500 to-yellow-600', 
+    pattern: 'radial-gradient(circle at 30% 20%, #F39C12, #E67E22, #D35400, #A04000)',
+    emoji: '♃', 
+    sound: 'jupiter',
+    description: 'Gas Giant'
+  },
+  6: { 
+    name: 'Saturn', 
+    color: 'from-yellow-400 to-amber-600', 
+    pattern: 'radial-gradient(circle at 35% 25%, #F1C40F, #F39C12, #E67E22)',
+    emoji: '♄', 
+    sound: 'saturn',
+    description: 'Ringed Planet'
+  },
+  7: { 
+    name: 'Uranus', 
+    color: 'from-cyan-400 to-blue-500', 
+    pattern: 'radial-gradient(circle at 40% 30%, #5DADE2, #3498DB, #2980B9)',
+    emoji: '♅', 
+    sound: 'uranus',
+    description: 'Ice Giant'
+  },
+  8: { 
+    name: 'Neptune', 
+    color: 'from-blue-600 to-indigo-800', 
+    pattern: 'radial-gradient(circle at 35% 25%, #3F51B5, #2C3E50, #1A252F)',
+    emoji: '♆', 
+    sound: 'neptune',
+    description: 'Windiest Planet'
+  },
+  9: { 
+    name: 'Pluto', 
+    color: 'from-gray-400 to-purple-600', 
+    pattern: 'radial-gradient(circle at 40% 30%, #BDC3C7, #8E44AD, #5B2C6F)',
+    emoji: '♇', 
+    sound: 'pluto',
+    description: 'Dwarf Planet'
+  },
+  'moon': { 
+    name: 'Moon', 
+    color: 'from-gray-200 to-gray-500', 
+    pattern: 'radial-gradient(circle at 45% 35%, #ECF0F1, #BDC3C7, #85929E)',
+    emoji: '🌙', 
+    sound: 'moon', 
+    special: true,
+    description: "Earth's satellite"
+  },
+  'sun': { 
+    name: 'Sun', 
+    color: 'from-yellow-300 to-orange-500', 
+    pattern: 'radial-gradient(circle at 30% 30%, #FFD700, #FFA500, #FF6347)',
+    emoji: '☀️', 
+    sound: 'sun', 
+    special: 'double_coins',
+    description: 'Our star'
+  }
 };
 
 export const mockGameData = {
