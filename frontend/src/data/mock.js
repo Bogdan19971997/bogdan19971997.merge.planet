@@ -49,7 +49,7 @@ export const mockGameData = {
   initialGameState: {
     grid: Array(6).fill(null).map(() => Array(6).fill(null).map(() => {
       // Randomly place some initial planets
-      if (Math.random() > 0.8) {
+      if (Math.random() < 0.65) {
         return {
           id: Math.random().toString(36).substr(2, 9),
           level: Math.random() > 0.5 ? 2 : 1
