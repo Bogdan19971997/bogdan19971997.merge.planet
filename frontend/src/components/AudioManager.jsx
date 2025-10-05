@@ -96,6 +96,8 @@ export const AudioProvider = ({ children }) => {
 
   // Development sound feedback using Web Audio API
   const createSoundFeedback = (soundKey, volume) => {
+    if (!settings.soundEnabled || volume <= 0) return;
+    
     try {
       const audioContext = new (window.AudioContext || window.webkitAudioContext)();
       const oscillator = audioContext.createOscillator();
@@ -104,31 +106,38 @@ export const AudioProvider = ({ children }) => {
       oscillator.connect(gainNode);
       gainNode.connect(audioContext.destination);
       
-      // Different frequencies for different sound types
+      // Different frequencies and types for different sound effects
       const soundMap = {
-        click: 800,
-        hover: 600,
-        merge: 400,
-        coin_earn: 1000,
-        level_up: 1200,
-        moon_bonus: 300,
-        sun_double: 500,
-        achievement: 1500
+        click: { freq: 800, type: 'sine', duration: 0.1 },
+        hover: { freq: 600, type: 'sine', duration: 0.05 },
+        merge: { freq: 400, type: 'sawtooth', duration: 0.2 },
+        place: { freq: 700, type: 'triangle', duration: 0.1 },
+        select: { freq: 900, type: 'sine', duration: 0.05 },
+        coin_earn: { freq: 1000, type: 'sine', duration: 0.15 },
+        level_up: { freq: 1200, type: 'square', duration: 0.3 },
+        moon_bonus: { freq: 300, type: 'sawtooth', duration: 0.4 },
+        sun_double: { freq: 500, type: 'triangle', duration: 0.25 },
+        achievement: { freq: 1500, type: 'sine', duration: 0.5 }
       };
       
-      oscillator.frequency.setValueAtTime(
-        soundMap[soundKey] || 440, 
-        audioContext.currentTime
-      );
+      const sound = soundMap[soundKey] || { freq: 440, type: 'sine', duration: 0.1 };
+      
+      oscillator.frequency.setValueAtTime(sound.freq, audioContext.currentTime);
+      oscillator.type = sound.type;
+      
+      // Make sounds much more audible
+      const finalVolume = Math.min(volume * 0.3, 0.3); // Increase volume significantly
       
       gainNode.gain.setValueAtTime(0, audioContext.currentTime);
-      gainNode.gain.linearRampToValueAtTime(volume * 0.1, audioContext.currentTime + 0.01);
-      gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.1);
+      gainNode.gain.linearRampToValueAtTime(finalVolume, audioContext.currentTime + 0.01);
+      gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + sound.duration);
       
       oscillator.start(audioContext.currentTime);
-      oscillator.stop(audioContext.currentTime + 0.1);
+      oscillator.stop(audioContext.currentTime + sound.duration);
+      
+      console.log(`🔊 Playing sound: ${soundKey} at ${finalVolume} volume`);
     } catch (error) {
-      // Silently fail if Web Audio API is not supported
+      console.warn('Web Audio API error:', error);
     }
   };
 
