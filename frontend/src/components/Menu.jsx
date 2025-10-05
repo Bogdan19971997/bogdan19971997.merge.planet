@@ -28,7 +28,10 @@ const Menu = ({ onNavigate, gameStats }) => {
       description: 'Buy power-ups & boosters',
       icon: ShoppingCart,
       color: 'from-blue-500 to-cyan-600',
-      action: () => onNavigate('shop'),
+      action: () => {
+        playSound('click');
+        onNavigate('shop');
+      },
       badge: 'Hot'
     },
     {
