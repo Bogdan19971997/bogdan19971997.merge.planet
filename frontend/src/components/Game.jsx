@@ -113,12 +113,37 @@ const Game = ({ onNavigate, gameStats, onStatsUpdate }) => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4">
       <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="text-center mb-6">
-          <h1 className="text-4xl font-bold text-white mb-2 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-            Merge Planet
-          </h1>
-          <p className="text-gray-300">Merge planets to create new worlds and earn cosmic rewards!</p>
+        {/* Header with Navigation */}
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <Button 
+              onClick={() => onNavigate('menu')} 
+              variant="outline"
+              size="sm"
+              className="border-gray-600 text-gray-300 hover:bg-gray-800"
+            >
+              <ArrowLeft className="w-4 h-4 mr-1" />
+              Menu
+            </Button>
+            <Button 
+              onClick={() => onNavigate('shop')} 
+              variant="outline"
+              size="sm"
+              className="border-gray-600 text-gray-300 hover:bg-gray-800"
+            >
+              <ShoppingCart className="w-4 h-4 mr-1" />
+              Shop
+            </Button>
+          </div>
+          
+          <div className="text-center flex-1">
+            <h1 className="text-3xl md:text-4xl font-bold text-white bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+              Merge Planet
+            </h1>
+            <p className="text-gray-300 text-sm hidden md:block">Merge planets to create new worlds and earn cosmic rewards!</p>
+          </div>
+          
+          <div className="w-20" /> {/* Spacer for balance */}
         </div>
 
         {/* Game Stats */}
