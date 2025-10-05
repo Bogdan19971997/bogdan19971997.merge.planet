@@ -478,9 +478,11 @@ const Game = ({ onNavigate, gameStats, onStatsUpdate }) => {
               <h3 className="text-white font-bold mb-2">Special Features</h3>
               <ul className="text-gray-300 text-sm space-y-1">
                 <li>🌍 Earth + Earth = Moon chance</li>
+                <li>🌙 Moon + Moon = Mars</li>
                 <li>♇ Pluto + Pluto = Sun</li>
                 <li>☀️ Double-tap Sun for coin bonus</li>
-                <li>🎯 Reach Level 1,000,000!</li>
+                <li>✨ 25% bonus planet spawn</li>
+                <li>🎯 Reach Level 10,000,000!</li>
               </ul>
             </Card>
           </div>
