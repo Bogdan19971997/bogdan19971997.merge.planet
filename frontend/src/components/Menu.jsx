@@ -74,7 +74,10 @@ const Menu = ({ onNavigate, gameStats }) => {
       description: 'Audio, notifications & more',
       icon: Settings,
       color: 'from-gray-500 to-slate-600',
-      action: () => onNavigate('settings')
+      action: () => {
+        playSound('click');
+        onNavigate('settings');
+      }
     }
   ];
 
