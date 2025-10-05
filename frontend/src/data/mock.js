@@ -128,7 +128,11 @@ export const mockGameData = {
 // Helper functions for game logic
 export const gameUtils = {
   canMergePlanets: (planet1, planet2) => {
-    return planet1.level === planet2.level && planet1.level <= 9;
+    // Regular planets can merge with same level
+    if (planet1.level === planet2.level && planet1.level <= 9) return true;
+    // Moons can merge with other moons to create Mars
+    if (planet1.type === 'moon' && planet2.type === 'moon') return true;
+    return false;
   },
   
   calculateMergeReward: (level) => {
