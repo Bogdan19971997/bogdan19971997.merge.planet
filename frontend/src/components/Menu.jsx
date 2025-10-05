@@ -17,7 +17,10 @@ const Menu = ({ onNavigate, gameStats }) => {
       description: 'Start your cosmic adventure',
       icon: Play,
       color: 'from-green-500 to-emerald-600',
-      action: () => onNavigate('game')
+      action: () => {
+        playSound('click');
+        onNavigate('game');
+      }
     },
     {
       id: 'shop',
