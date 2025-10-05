@@ -30,6 +30,21 @@ export const mockPremiumItems = [
   }
 ];
 
+// Enhanced planet system with all 9 planets + Moon + Sun
+export const planetTypes = {
+  1: { name: 'Mercury', color: 'from-gray-400 to-gray-600', emoji: '☿️', sound: 'mercury' },
+  2: { name: 'Venus', color: 'from-orange-400 to-yellow-500', emoji: '♀️', sound: 'venus' },
+  3: { name: 'Earth', color: 'from-blue-400 to-green-500', emoji: '🌍', sound: 'earth', special: 'moon_chance' },
+  4: { name: 'Mars', color: 'from-red-400 to-red-600', emoji: '♂️', sound: 'mars' },
+  5: { name: 'Jupiter', color: 'from-amber-500 to-orange-600', emoji: '♃', sound: 'jupiter' },
+  6: { name: 'Saturn', color: 'from-purple-400 to-indigo-600', emoji: '♄', sound: 'saturn' },
+  7: { name: 'Uranus', color: 'from-cyan-400 to-blue-600', emoji: '♅', sound: 'uranus' },
+  8: { name: 'Neptune', color: 'from-blue-600 to-indigo-700', emoji: '♆', sound: 'neptune' },
+  9: { name: 'Pluto', color: 'from-gray-600 to-purple-700', emoji: '♇', sound: 'pluto' },
+  'moon': { name: 'Moon', color: 'from-gray-200 to-gray-400', emoji: '🌙', sound: 'moon', special: true },
+  'sun': { name: 'Sun', color: 'from-yellow-300 to-orange-500', emoji: '☀️', sound: 'sun', special: 'double_coins' }
+};
+
 export const mockGameData = {
   initialGameState: {
     grid: Array(6).fill(null).map(() => Array(6).fill(null).map(() => {
@@ -44,68 +59,106 @@ export const mockGameData = {
     }))
   },
   
-  planetTypes: {
-    1: { name: 'Mercury', baseValue: 10, color: 'gray' },
-    2: { name: 'Venus', baseValue: 25, color: 'orange' },
-    3: { name: 'Earth', baseValue: 50, color: 'blue' },
-    4: { name: 'Mars', baseValue: 100, color: 'red' },
-    5: { name: 'Jupiter', baseValue: 200, color: 'amber' },
-    6: { name: 'Saturn', baseValue: 500, color: 'purple' }
-  },
-  
   gameSettings: {
     gridSize: 6,
-    maxPlanetLevel: 6,
-    maxGameLevel: 100,
+    maxPlanetLevel: 9,
+    maxGameLevel: 1000000,
     coinCostForNewPlanet: 20,
     coinCostForLevelUp: 100,
-    initialCoins: 100
+    initialCoins: 100,
+    moonChance: 0.15, // 15% chance when merging Earth
+    sunDoubleTapWindow: 1000 // 1 second window for double tap
   },
   
   achievements: [
     { id: 1, name: 'First Merge', description: 'Merge your first planet', unlocked: false },
     { id: 2, name: 'Earth Creator', description: 'Create an Earth planet', unlocked: false },
-    { id: 3, name: 'Cosmic Collector', description: 'Earn 1000 coins', unlocked: false },
-    { id: 4, name: 'Saturn Master', description: 'Create a Saturn planet', unlocked: false },
-    { id: 5, name: 'Level 10', description: 'Reach level 10', unlocked: false },
-    { id: 6, name: 'High Roller', description: 'Earn 10000 points', unlocked: false }
+    { id: 3, name: 'Lunar Discovery', description: 'Discover the Moon', unlocked: false },
+    { id: 4, name: 'Solar Master', description: 'Create the Sun', unlocked: false },
+    { id: 5, name: 'Cosmic Collector', description: 'Earn 1000 coins', unlocked: false },
+    { id: 6, name: 'Pluto Finder', description: 'Create Pluto', unlocked: false },
+    { id: 7, name: 'Level 100', description: 'Reach level 100', unlocked: false },
+    { id: 8, name: 'Solar System Master', description: 'Create all 9 planets', unlocked: false }
   ],
   
   leaderboard: [
-    { rank: 1, name: 'CosmicMaster', score: 15420, level: 25 },
-    { rank: 2, name: 'PlanetHunter', score: 12890, level: 22 },
-    { rank: 3, name: 'StarForge', score: 11250, level: 20 },
-    { rank: 4, name: 'GalaxyBuilder', score: 9870, level: 18 },
-    { rank: 5, name: 'SpaceExplorer', score: 8640, level: 16 }
-  ]
+    { rank: 1, name: 'CosmicMaster', score: 154200, level: 250 },
+    { rank: 2, name: 'PlanetHunter', score: 128900, level: 220 },
+    { rank: 3, name: 'StarForge', score: 112500, level: 200 },
+    { rank: 4, name: 'GalaxyBuilder', score: 98700, level: 180 },
+    { rank: 5, name: 'SpaceExplorer', score: 86400, level: 160 }
+  ],
+  
+  soundEffects: {
+    menu: {
+      hover: '/sounds/menu_hover.mp3',
+      click: '/sounds/menu_click.mp3',
+      transition: '/sounds/page_transition.mp3'
+    },
+    game: {
+      merge: '/sounds/planet_merge.mp3',
+      select: '/sounds/planet_select.mp3',
+      place: '/sounds/planet_place.mp3',
+      coin_earn: '/sounds/coin_earn.mp3',
+      level_up: '/sounds/level_up.mp3',
+      moon_bonus: '/sounds/moon_discover.mp3',
+      sun_double: '/sounds/sun_power.mp3',
+      achievement: '/sounds/achievement.mp3'
+    },
+    planets: {
+      mercury: '/sounds/planets/mercury.mp3',
+      venus: '/sounds/planets/venus.mp3',
+      earth: '/sounds/planets/earth.mp3',
+      mars: '/sounds/planets/mars.mp3',
+      jupiter: '/sounds/planets/jupiter.mp3',
+      saturn: '/sounds/planets/saturn.mp3',
+      uranus: '/sounds/planets/uranus.mp3',
+      neptune: '/sounds/planets/neptune.mp3',
+      pluto: '/sounds/planets/pluto.mp3',
+      moon: '/sounds/planets/moon.mp3',
+      sun: '/sounds/planets/sun.mp3'
+    }
+  }
 };
 
 // Helper functions for game logic
 export const gameUtils = {
   canMergePlanets: (planet1, planet2) => {
-    return planet1.level === planet2.level && planet1.level < 6;
+    return planet1.level === planet2.level && planet1.level <= 9;
   },
   
   calculateMergeReward: (level) => {
+    const baseReward = level * 10;
     return {
-      coins: level * 10,
-      score: level * 50
+      coins: baseReward,
+      score: baseReward * 5
     };
   },
   
   calculateLevelUpCost: (currentLevel) => {
-    return 100 + (currentLevel * 10);
+    return Math.floor(100 + (currentLevel * 15));
   },
   
   getRandomPlanetLevel: () => {
     const rand = Math.random();
+    if (rand > 0.85) return 3;
     if (rand > 0.7) return 2;
-    if (rand > 0.9) return 3;
     return 1;
   },
   
   checkLevelCompletion: (score, currentLevel) => {
-    const requiredScore = currentLevel * 500;
+    const requiredScore = currentLevel * 1000;
     return score >= requiredScore;
+  },
+  
+  checkMoonChance: (earthMergeLevel) => {
+    // Higher chance for moon when merging higher level earths
+    const baseChance = 0.15;
+    const bonusChance = earthMergeLevel * 0.05;
+    return Math.random() < (baseChance + bonusChance);
+  },
+  
+  getSunDoubleTapReward: (currentCoins) => {
+    return currentCoins; // Double the current coins
   }
 };

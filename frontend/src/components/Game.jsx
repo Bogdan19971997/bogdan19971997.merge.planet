@@ -1,19 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from './ui/button';
 import { Card } from './ui/card';
 import { Badge } from './ui/badge';
-import { Coins, Star, Trophy, RotateCcw, ArrowLeft, Home, ShoppingCart } from 'lucide-react';
-import { mockGameData } from '../data/mock';
+import { Coins, Star, Trophy, RotateCcw, ArrowLeft, Home, ShoppingCart, Zap } from 'lucide-react';
+import { mockGameData, planetTypes, gameUtils } from '../data/mock';
 import { useToast } from '../hooks/use-toast';
+import { useAudio } from './AudioManager';
 
 const Game = ({ onNavigate, gameStats, onStatsUpdate }) => {
   const { toast } = useToast();
+  const { playSound } = useAudio();
   const [gameState, setGameState] = useState(mockGameData.initialGameState);
   const [selectedPlanet, setSelectedPlanet] = useState(null);
   const [score, setScore] = useState(0);
   const [coins, setCoins] = useState(100);
   const [currentLevel, setCurrentLevel] = useState(1);
   const [moves, setMoves] = useState(0);
+  const [sunLastTap, setSunLastTap] = useState(0);
+  const [specialEffects, setSpecialEffects] = useState([]);
 
   // Initialize from gameStats on mount
   useEffect(() => {
@@ -37,16 +41,7 @@ const Game = ({ onNavigate, gameStats, onStatsUpdate }) => {
     return () => clearTimeout(timeoutId);
   }, [score, coins, currentLevel]);
 
-  const planetTypes = {
-    1: { name: 'Mercury', color: 'from-gray-400 to-gray-600', emoji: '☿️' },
-    2: { name: 'Venus', color: 'from-orange-400 to-yellow-500', emoji: '♀️' },
-    3: { name: 'Earth', color: 'from-blue-400 to-green-500', emoji: '🌍' },
-    4: { name: 'Mars', color: 'from-red-400 to-red-600', emoji: '♂️' },
-    5: { name: 'Jupiter', color: 'from-amber-500 to-orange-600', emoji: '♃' },
-    6: { name: 'Saturn', color: 'from-purple-400 to-indigo-600', emoji: '♄' }
-  };
-
-  const handleCellClick = (rowIndex, colIndex) => {
+  const handleCellClick = useCallback((rowIndex, colIndex) => {
     const cell = gameState.grid[rowIndex][colIndex];
     
     if (selectedPlanet && !cell) {
@@ -56,44 +51,135 @@ const Game = ({ onNavigate, gameStats, onStatsUpdate }) => {
       setGameState({ ...gameState, grid: newGrid });
       setSelectedPlanet(null);
       setMoves(moves + 1);
+      playSound('place');
     } else if (cell && !selectedPlanet) {
       // Select planet
+      if (cell.type === 'sun') {
+        handleSunDoubleTap(cell);
+        return;
+      }
+      
       setSelectedPlanet(cell);
       const newGrid = [...gameState.grid];
       newGrid[rowIndex][colIndex] = null;
       setGameState({ ...gameState, grid: newGrid });
-    } else if (selectedPlanet && cell && selectedPlanet.level === cell.level && selectedPlanet.level < 6) {
+      playSound('select');
+    } else if (selectedPlanet && cell && gameUtils.canMergePlanets(selectedPlanet, cell)) {
       // Merge planets
-      const newGrid = [...gameState.grid];
-      const newLevel = cell.level + 1;
-      newGrid[rowIndex][colIndex] = { id: Date.now(), level: newLevel };
-      setGameState({ ...gameState, grid: newGrid });
+      handlePlanetMerge(selectedPlanet, cell, rowIndex, colIndex);
+    }
+  }, [gameState, selectedPlanet, moves, playSound]);
+
+  const handlePlanetMerge = (planet1, planet2, rowIndex, colIndex) => {
+    const newGrid = [...gameState.grid];
+    let newLevel = planet2.level + 1;
+    let newPlanet = { id: Date.now(), level: newLevel };
+    
+    // Special case: Earth merging has chance to create Moon
+    if (planet2.level === 3 && gameUtils.checkMoonChance(planet2.level)) {
+      newPlanet = { id: Date.now(), type: 'moon', level: 'moon' };
+      playSound('moon_bonus');
+      showSpecialEffect(rowIndex, colIndex, '🌙 Moon Discovered!');
       
-      // Award coins and points
-      const coinReward = newLevel * 10;
-      const scoreReward = newLevel * 50;
-      setCoins(coins + coinReward);
-      setScore(score + scoreReward);
-      setSelectedPlanet(null);
-      setMoves(moves + 1);
-      
-      // Show reward toast
       toast({
-        title: `${planetTypes[newLevel].name} Created!`,
-        description: `+${coinReward} coins, +${scoreReward} points`
+        title: "🌙 Moon Discovered!",
+        description: "Earth merger created the Moon! Bonus rewards earned!"
+      });
+    }
+    // After 9th planet (Pluto), create Sun
+    else if (planet2.level === 9) {
+      newPlanet = { id: Date.now(), type: 'sun', level: 'sun' };
+      playSound('sun_double');
+      showSpecialEffect(rowIndex, colIndex, '☀️ Sun Created!');
+      
+      toast({
+        title: "☀️ Sun Created!",
+        description: "Double-tap the Sun for massive coin bonuses!"
+      });
+    }
+    
+    newGrid[rowIndex][colIndex] = newPlanet;
+    setGameState({ ...gameState, grid: newGrid });
+    
+    // Award coins and points
+    const reward = gameUtils.calculateMergeReward(newLevel);
+    let coinReward = reward.coins;
+    let scoreReward = reward.score;
+    
+    // Moon bonus
+    if (newPlanet.type === 'moon') {
+      coinReward *= 3;
+      scoreReward *= 3;
+    }
+    
+    setCoins(coins + coinReward);
+    setScore(score + scoreReward);
+    setSelectedPlanet(null);
+    setMoves(moves + 1);
+    
+    playSound('merge');
+    playSound('coin_earn');
+    
+    // Show reward toast
+    const planetName = planetTypes[newLevel]?.name || planetTypes[newPlanet.type]?.name || 'Unknown';
+    toast({
+      title: `${planetName} Created!`,
+      description: `+${coinReward} coins, +${scoreReward} points`
+    });
+    
+    // Check for level completion
+    if (gameUtils.checkLevelCompletion(score + scoreReward, currentLevel)) {
+      setCurrentLevel(prev => Math.min(prev + 1, 1000000));
+      playSound('level_up');
+      toast({
+        title: `🎉 Level ${currentLevel + 1}!`,
+        description: "Congratulations on reaching a new level!"
+      });
+    }
+  };
+
+  const handleSunDoubleTap = (sunCell) => {
+    const now = Date.now();
+    const timeSinceLastTap = now - sunLastTap;
+    
+    if (timeSinceLastTap < mockGameData.gameSettings.sunDoubleTapWindow) {
+      // Double tap detected!
+      const doubleCoins = gameUtils.getSunDoubleTapReward(coins);
+      setCoins(coins + doubleCoins);
+      
+      playSound('sun_double');
+      showSpecialEffect(0, 0, `☀️ +${doubleCoins} COINS!`);
+      
+      toast({
+        title: "☀️ Sun Power Activated!",
+        description: `Double coins reward: +${doubleCoins} coins!`
       });
       
-      // Check for level completion
-      if (newLevel === 6) {
-        // Bonus for creating max level planet
-        setCoins(coins + coinReward + 100);
-        setScore(score + scoreReward + 500);
-        toast({
-          title: "🎉 Saturn Achieved!",
-          description: "Bonus: +100 coins, +500 points!"
-        });
-      }
+      setSunLastTap(0); // Reset
+    } else {
+      setSunLastTap(now);
+      toast({
+        title: "☀️ Sun Selected",
+        description: "Double-tap quickly for coin bonus!"
+      });
     }
+  };
+
+  const showSpecialEffect = (row, col, text) => {
+    const effect = {
+      id: Date.now(),
+      row,
+      col,
+      text,
+      timestamp: Date.now()
+    };
+    
+    setSpecialEffects(prev => [...prev, effect]);
+    
+    // Remove effect after animation
+    setTimeout(() => {
+      setSpecialEffects(prev => prev.filter(e => e.id !== effect.id));
+    }, 2000);
   };
 
   const addRandomPlanet = () => {
@@ -110,10 +196,11 @@ const Game = ({ onNavigate, gameStats, onStatsUpdate }) => {
         const newGrid = [...gameState.grid];
         newGrid[randomSpot[0]][randomSpot[1]] = {
           id: Date.now(),
-          level: Math.random() > 0.7 ? 2 : 1
+          level: gameUtils.getRandomPlanetLevel()
         };
         setGameState({ ...gameState, grid: newGrid });
         setCoins(coins - 20);
+        playSound('place');
       }
     }
   };
@@ -124,23 +211,53 @@ const Game = ({ onNavigate, gameStats, onStatsUpdate }) => {
     setScore(0);
     setCoins(100);
     setMoves(0);
+    setCurrentLevel(1);
+    setSpecialEffects([]);
+    playSound('click');
   };
 
   const levelUp = () => {
-    if (coins >= 100 && currentLevel < 100) {
+    const cost = gameUtils.calculateLevelUpCost(currentLevel);
+    if (coins >= cost && currentLevel < 1000000) {
       setCurrentLevel(currentLevel + 1);
-      setCoins(coins - 100);
+      setCoins(coins - cost);
+      playSound('level_up');
     }
   };
 
+  const renderPlanet = (cell) => {
+    if (!cell) return null;
+    
+    const planetData = planetTypes[cell.level] || planetTypes[cell.type];
+    if (!planetData) return null;
+    
+    return (
+      <div className={`
+        w-full h-full rounded-lg bg-gradient-to-br ${planetData.color}
+        flex items-center justify-center text-white font-bold shadow-lg
+        ${selectedPlanet && selectedPlanet.id === cell.id ? 'ring-2 ring-blue-400 ring-opacity-75' : ''}
+        ${cell.type === 'sun' ? 'animate-pulse' : ''}
+        transition-all duration-200 hover:scale-105
+      `}>
+        <div className="text-center">
+          <div className="text-lg md:text-xl">{planetData.emoji}</div>
+          <div className="text-xs">{cell.type || cell.level}</div>
+        </div>
+      </div>
+    );
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4 relative">
       <div className="max-w-4xl mx-auto">
         {/* Header with Navigation */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
             <Button 
-              onClick={() => onNavigate('menu')} 
+              onClick={() => {
+                playSound('click');
+                onNavigate('menu');
+              }} 
               variant="outline"
               size="sm"
               className="border-gray-600 text-gray-300 hover:bg-gray-800"
@@ -149,7 +266,10 @@ const Game = ({ onNavigate, gameStats, onStatsUpdate }) => {
               Menu
             </Button>
             <Button 
-              onClick={() => onNavigate('shop')} 
+              onClick={() => {
+                playSound('click');
+                onNavigate('shop');
+              }} 
               variant="outline"
               size="sm"
               className="border-gray-600 text-gray-300 hover:bg-gray-800"
@@ -176,7 +296,7 @@ const Game = ({ onNavigate, gameStats, onStatsUpdate }) => {
               <Trophy className="w-5 h-5 text-yellow-400" />
               <div>
                 <p className="text-sm text-gray-400">Level</p>
-                <p className="text-xl font-bold text-white">{currentLevel}/100</p>
+                <p className="text-xl font-bold text-white">{currentLevel.toLocaleString()}/1M</p>
               </div>
             </div>
           </Card>
@@ -196,7 +316,7 @@ const Game = ({ onNavigate, gameStats, onStatsUpdate }) => {
               <Coins className="w-5 h-5 text-yellow-500" />
               <div>
                 <p className="text-sm text-gray-400">Coins</p>
-                <p className="text-xl font-bold text-white">{coins}</p>
+                <p className="text-xl font-bold text-white">{coins.toLocaleString()}</p>
               </div>
             </div>
           </Card>
@@ -210,20 +330,25 @@ const Game = ({ onNavigate, gameStats, onStatsUpdate }) => {
           
           <Card className="p-4 bg-black/20 border-gray-700">
             <Button 
-              onClick={levelUp} 
-              disabled={coins < 100 || currentLevel >= 100}
+              onClick={() => {
+                playSound('click');
+                levelUp();
+              }}
+              disabled={coins < gameUtils.calculateLevelUpCost(currentLevel) || currentLevel >= 1000000}
               className="w-full bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600"
             >
               Level Up
+              <br />
+              <span className="text-xs">{gameUtils.calculateLevelUpCost(currentLevel)} coins</span>
             </Button>
           </Card>
         </div>
 
         <div className="grid md:grid-cols-3 gap-6">
           {/* Game Board */}
-          <div className="md:col-span-2">
+          <div className="md:col-span-2 relative">
             <Card className="p-6 bg-black/30 border-gray-700">
-              <div className="grid grid-cols-6 gap-2 mb-4">
+              <div className="grid grid-cols-6 gap-2 mb-4 relative">
                 {gameState.grid.map((row, rowIndex) =>
                   row.map((cell, colIndex) => (
                     <div
@@ -237,27 +362,33 @@ const Game = ({ onNavigate, gameStats, onStatsUpdate }) => {
                         flex items-center justify-center relative
                       `}
                     >
-                      {cell && (
-                        <div className={`
-                          w-full h-full rounded-lg bg-gradient-to-br ${planetTypes[cell.level].color}
-                          flex items-center justify-center text-white font-bold shadow-lg
-                          ${selectedPlanet && selectedPlanet.id === cell.id ? 'ring-2 ring-blue-400' : ''}
-                        `}>
-                          <div className="text-center">
-                            <div className="text-lg">{planetTypes[cell.level].emoji}</div>
-                            <div className="text-xs">{cell.level}</div>
-                          </div>
-                        </div>
-                      )}
+                      {renderPlanet(cell)}
                     </div>
                   ))
                 )}
+                
+                {/* Special Effects Overlay */}
+                {specialEffects.map(effect => (
+                  <div
+                    key={effect.id}
+                    className="absolute pointer-events-none z-10 animate-bounce"
+                    style={{
+                      left: `${(effect.col * 16.66)}%`,
+                      top: `${(effect.row * 16.66)}%`,
+                    }}
+                  >
+                    <div className="bg-yellow-400 text-black px-2 py-1 rounded-lg font-bold text-xs whitespace-nowrap">
+                      {effect.text}
+                    </div>
+                  </div>
+                ))}
               </div>
               
               {selectedPlanet && (
                 <div className="text-center p-3 bg-blue-500/20 rounded-lg border border-blue-500/50">
                   <p className="text-blue-300 text-sm">
-                    Selected: {planetTypes[selectedPlanet.level].name} (Level {selectedPlanet.level})
+                    Selected: {planetTypes[selectedPlanet.level]?.name || planetTypes[selectedPlanet.type]?.name} 
+                    (Level {selectedPlanet.level})
                   </p>
                   <p className="text-gray-400 text-xs mt-1">
                     Click an empty cell to place, or same level planet to merge
@@ -271,16 +402,18 @@ const Game = ({ onNavigate, gameStats, onStatsUpdate }) => {
           <div className="space-y-4">
             {/* Planet Guide */}
             <Card className="p-4 bg-black/30 border-gray-700">
-              <h3 className="text-white font-bold mb-3">Planet Types</h3>
-              <div className="space-y-2">
+              <h3 className="text-white font-bold mb-3">Solar System</h3>
+              <div className="space-y-2 max-h-60 overflow-y-auto">
                 {Object.entries(planetTypes).map(([level, planet]) => (
                   <div key={level} className="flex items-center gap-3">
                     <div className={`w-8 h-8 rounded-full bg-gradient-to-br ${planet.color} flex items-center justify-center`}>
-                      <span className="text-xs text-white font-bold">{level}</span>
+                      <span className="text-xs">{planet.emoji}</span>
                     </div>
                     <div>
                       <p className="text-white text-sm font-medium">{planet.name}</p>
-                      <p className="text-gray-400 text-xs">Level {level}</p>
+                      <p className="text-gray-400 text-xs">
+                        {level === 'moon' ? 'Earth Bonus' : level === 'sun' ? 'Ultimate Goal' : `Level ${level}`}
+                      </p>
                     </div>
                   </div>
                 ))}
@@ -292,7 +425,10 @@ const Game = ({ onNavigate, gameStats, onStatsUpdate }) => {
               <h3 className="text-white font-bold mb-3">Actions</h3>
               <div className="space-y-3">
                 <Button 
-                  onClick={addRandomPlanet}
+                  onClick={() => {
+                    playSound('click');
+                    addRandomPlanet();
+                  }}
                   disabled={coins < 20}
                   className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700"
                 >
@@ -312,13 +448,12 @@ const Game = ({ onNavigate, gameStats, onStatsUpdate }) => {
 
             {/* Tips */}
             <Card className="p-4 bg-black/30 border-gray-700">
-              <h3 className="text-white font-bold mb-2">How to Play</h3>
+              <h3 className="text-white font-bold mb-2">Special Features</h3>
               <ul className="text-gray-300 text-sm space-y-1">
-                <li>• Click planets to select them</li>
-                <li>• Merge same level planets</li>
-                <li>• Earn coins from merging</li>
-                <li>• Use coins to level up</li>
-                <li>• Reach level 100 to win!</li>
+                <li>🌍 Earth + Earth = Moon chance</li>
+                <li>♇ Pluto + Pluto = Sun</li>
+                <li>☀️ Double-tap Sun for coin bonus</li>
+                <li>🎯 Reach Level 1,000,000!</li>
               </ul>
             </Card>
           </div>
