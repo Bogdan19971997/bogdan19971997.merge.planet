@@ -1,5 +1,35 @@
 // Mock data for the Merge Planet game
 
+export const mockShopItems = {
+  powerUps: [
+    { id: 'auto_merge', name: 'Auto Merge', price: 50, description: 'Automatically merge planets' },
+    { id: 'double_coins', name: 'Double Coins', price: 75, description: '2x coins for 5 minutes' },
+    { id: 'lucky_spawn', name: 'Lucky Spawn', price: 100, description: 'Better planet spawns' }
+  ],
+  coinPacks: [
+    { id: 'small_pack', name: 'Small Pack', coins: 500, price: 0, description: 'Watch ad' },
+    { id: 'medium_pack', name: 'Medium Pack', coins: 1500, price: 200, description: '1,500 coins' },
+    { id: 'large_pack', name: 'Large Pack', coins: 5000, price: 600, description: '5,000 coins' }
+  ]
+};
+
+export const mockPremiumItems = [
+  {
+    id: 'starter_pack',
+    name: 'Cosmic Starter',
+    price: 2.99,
+    coins: 2000,
+    items: ['2,000 Coins', '3 Power-ups', 'Ad-Free Week']
+  },
+  {
+    id: 'explorer_pack',
+    name: 'Galaxy Explorer',
+    price: 7.99,
+    coins: 6000,
+    items: ['6,000 Coins', '10 Power-ups', 'Ad-Free Month', 'Exclusive Skins']
+  }
+];
+
 export const mockGameData = {
   initialGameState: {
     grid: Array(6).fill(null).map(() => Array(6).fill(null).map(() => {
