@@ -135,7 +135,10 @@ const Menu = ({ onNavigate, gameStats }) => {
                 key={item.id}
                 className="group cursor-pointer bg-black/30 border-gray-700 hover:border-gray-500 transition-all duration-300 transform hover:scale-105 hover:shadow-2xl"
                 onClick={item.action}
-                onMouseEnter={() => setSelectedFeature(item.id)}
+                onMouseEnter={() => {
+                  playSound('hover');
+                  setSelectedFeature(item.id);
+                }}
                 onMouseLeave={() => setSelectedFeature(null)}
               >
                 <div className="p-6">
