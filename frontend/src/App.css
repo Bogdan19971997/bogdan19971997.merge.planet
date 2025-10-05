@@ -144,3 +144,65 @@
     font-size: 1.875rem !important;
   }
 }
+
+/* Custom gradient classes for realistic planets */
+.bg-gradient-radial {
+  background: radial-gradient(circle at center, var(--tw-gradient-stops));
+}
+
+/* Planet surface textures */
+.planet-mercury {
+  background: radial-gradient(circle at 30% 30%, #8C7853, #5C5C5C, #404040);
+}
+
+.planet-venus {
+  background: radial-gradient(circle at 35% 25%, #FFC649, #FF8C42, #E85D04);
+}
+
+.planet-earth {
+  background: radial-gradient(circle at 40% 30%, #4A90E2, #2ECC71, #1B4F72, #0E4B99);
+}
+
+.planet-mars {
+  background: radial-gradient(circle at 35% 25%, #FF6B4A, #C0392B, #922B21);
+}
+
+.planet-jupiter {
+  background: radial-gradient(circle at 30% 20%, #F39C12, #E67E22, #D35400, #A04000);
+}
+
+.planet-saturn {
+  background: radial-gradient(circle at 35% 25%, #F1C40F, #F39C12, #E67E22);
+}
+
+.planet-uranus {
+  background: radial-gradient(circle at 40% 30%, #5DADE2, #3498DB, #2980B9);
+}
+
+.planet-neptune {
+  background: radial-gradient(circle at 35% 25%, #3F51B5, #2C3E50, #1A252F);
+}
+
+.planet-pluto {
+  background: radial-gradient(circle at 40% 30%, #BDC3C7, #8E44AD, #5B2C6F);
+}
+
+.planet-moon {
+  background: radial-gradient(circle at 45% 35%, #ECF0F1, #BDC3C7, #85929E);
+}
+
+.planet-sun {
+  background: radial-gradient(circle at 30% 30%, #FFD700, #FFA500, #FF6347);
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.6), 0 0 40px rgba(255, 165, 0, 0.4);
+}
+
+/* Sound indicator animation */
+@keyframes soundPulse {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.2); opacity: 0.7; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.sound-indicator {
+  animation: soundPulse 0.3s ease-in-out;
+}
