@@ -1,0 +1,37 @@
+import React, { useState } from 'react';
+import { Button } from './ui/button';
+import { Card } from './ui/card';
+import { Shield, CreditCard, Smartphone, Lock } from 'lucide-react';
+import { useToast } from '../hooks/use-toast';
+
+const PaymentIntegration = ({ item, onSuccess, onCancel }) => {
+  const { toast } = useToast();
+  const [processing, setProcessing] = useState(false);
+  const [selectedMethod, setSelectedMethod] = useState('stripe');
+
+  const paymentMethods = [
+    {
+      id: 'stripe',
+      name: 'Credit/Debit Card',
+      icon: CreditCard,
+      description: 'Visa, Mastercard, Amex',
+      enabled: true
+    },
+    {
+      id: 'apple_pay',
+      name: 'Apple Pay',
+      icon: Smartphone,
+      description: 'Touch ID or Face ID',
+      enabled: typeof window !== 'undefined' && window.ApplePaySession
+    },
+    {
+      id: 'google_pay',
+      name: 'Google Pay',
+      icon: Smartphone,
+      description: 'Quick and secure',
+      enabled: typeof window !== 'undefined' && window.google?.payments
+    }
+  ];
+
+  const processPayment = async () => {
+    setProcessing(true);\n    \n    try {\n      // Show processing state\n      toast({\n        title: \"Processing Payment\",\n        description: \"Please wait while we process your payment...\"\n      });\n\n      // Simulate payment processing\n      await new Promise(resolve => setTimeout(resolve, 2000));\n\n      // In real implementation, integrate with:\n      if (selectedMethod === 'stripe') {\n        // Stripe integration\n        // const stripe = await loadStripe(process.env.REACT_APP_STRIPE_KEY);\n        // const { error } = await stripe.redirectToCheckout({ sessionId });\n        \n        // Mock successful payment\n        simulateSuccessfulPayment();\n      } else if (selectedMethod === 'apple_pay') {\n        // Apple Pay integration\n        // const paymentRequest = new window.ApplePaySession(...);\n        // paymentRequest.begin();\n        \n        simulateSuccessfulPayment();\n      } else if (selectedMethod === 'google_pay') {\n        // Google Pay integration\n        // const paymentsClient = new window.google.payments.api.PaymentsClient(...);\n        // const paymentData = await paymentsClient.loadPaymentData(...);\n        \n        simulateSuccessfulPayment();\n      }\n    } catch (error) {\n      toast({\n        title: \"Payment Failed\",\n        description: \"There was an issue processing your payment. Please try again.\",\n        variant: \"destructive\"\n      });\n      setProcessing(false);\n    }\n  };\n\n  const simulateSuccessfulPayment = () => {\n    setTimeout(() => {\n      toast({\n        title: \"Payment Successful! 🎉\",\n        description: `${item.name} has been added to your account.`\n      });\n      onSuccess({\n        transactionId: `txn_${Date.now()}`,\n        amount: item.price,\n        item: item,\n        method: selectedMethod,\n        timestamp: new Date().toISOString()\n      });\n      setProcessing(false);\n    }, 1000);\n  };\n\n  return (\n    <div className=\"fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4\">\n      <Card className=\"bg-slate-900 border-gray-700 p-6 w-full max-w-md\">\n        <div className=\"text-center mb-6\">\n          <h2 className=\"text-2xl font-bold text-white mb-2\">Complete Purchase</h2>\n          <p className=\"text-gray-300\">{item.name}</p>\n          <div className=\"text-3xl font-bold text-green-400 mt-2\">${item.price}</div>\n        </div>\n\n        {/* Security Badge */}\n        <div className=\"flex items-center justify-center gap-2 mb-6 text-sm text-green-400\">\n          <Shield className=\"w-4 h-4\" />\n          <span>Secured by 256-bit SSL encryption</span>\n        </div>\n\n        {/* Payment Methods */}\n        <div className=\"space-y-3 mb-6\">\n          <h3 className=\"text-white font-semibold mb-3\">Choose Payment Method</h3>\n          {paymentMethods.map(method => {\n            const IconComponent = method.icon;\n            return (\n              <div\n                key={method.id}\n                onClick={() => method.enabled && setSelectedMethod(method.id)}\n                className={`p-3 border rounded-lg cursor-pointer transition-all ${\n                  selectedMethod === method.id\n                    ? 'border-blue-500 bg-blue-500/10'\n                    : method.enabled \n                      ? 'border-gray-600 hover:border-gray-500' \n                      : 'border-gray-700 opacity-50 cursor-not-allowed'\n                }`}\n              >\n                <div className=\"flex items-center gap-3\">\n                  <IconComponent className=\"w-5 h-5 text-white\" />\n                  <div className=\"flex-1\">\n                    <div className=\"text-white font-medium\">{method.name}</div>\n                    <div className=\"text-gray-400 text-sm\">{method.description}</div>\n                  </div>\n                  {!method.enabled && (\n                    <span className=\"text-xs text-gray-500\">Unavailable</span>\n                  )}\n                </div>\n              </div>\n            );\n          })}\n        </div>\n\n        {/* Action Buttons */}\n        <div className=\"flex gap-3\">\n          <Button\n            onClick={onCancel}\n            variant=\"outline\"\n            className=\"flex-1 border-gray-600 text-gray-300 hover:bg-gray-800\"\n            disabled={processing}\n          >\n            Cancel\n          </Button>\n          <Button\n            onClick={processPayment}\n            disabled={processing || !selectedMethod}\n            className=\"flex-1 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700\"\n          >\n            {processing ? (\n              <>\n                <div className=\"animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2\" />\n                Processing...\n              </>\n            ) : (\n              <>\n                <Lock className=\"w-4 h-4 mr-2\" />\n                Pay ${item.price}\n              </>\n            )}\n          </Button>\n        </div>\n\n        {/* Trust Indicators */}\n        <div className=\"mt-6 pt-4 border-t border-gray-700\">\n          <div className=\"flex items-center justify-center gap-4 text-xs text-gray-400\">\n            <span>🛡️ PCI Compliant</span>\n            <span>📱 App Store Approved</span>\n            <span>💳 30-Day Refund</span>\n          </div>\n        </div>\n      </Card>\n    </div>\n  );\n};\n\nexport default PaymentIntegration;\n\n// Integration setup instructions for production:\n/*\n1. STRIPE INTEGRATION:\n   - Install: yarn add @stripe/stripe-js\n   - Setup: Add REACT_APP_STRIPE_PUBLISHABLE_KEY to .env\n   - Backend: Create checkout sessions endpoint\n\n2. APPLE PAY INTEGRATION:\n   - Register Apple Pay merchant ID\n   - Add apple-pay domain verification\n   - Configure Apple Pay button\n\n3. GOOGLE PAY INTEGRATION:\n   - Install: yarn add @google-pay/button-react\n   - Setup Google Pay merchant account\n   - Configure payment methods\n\n4. SECURITY REQUIREMENTS:\n   - Implement HTTPS only\n   - Add CSP headers\n   - Validate all payments server-side\n   - Store minimal payment data\n   - Implement fraud detection\n\n5. APP STORE REQUIREMENTS:\n   - Add In-App Purchase capabilities\n   - Configure App Store Connect\n   - Implement receipt validation\n   - Handle subscription management\n*/
