@@ -260,16 +260,39 @@ const Game = ({ onNavigate, gameStats, onStatsUpdate }) => {
     
     return (
       <div className={`
-        w-full h-full rounded-lg bg-gradient-to-br ${planetData.color}
-        flex items-center justify-center text-white font-bold shadow-lg
+        w-full h-full rounded-full shadow-lg relative overflow-hidden
         ${selectedPlanet && selectedPlanet.id === cell.id ? 'ring-2 ring-blue-400 ring-opacity-75' : ''}
         ${cell.type === 'sun' ? 'animate-pulse' : ''}
         transition-all duration-200 hover:scale-105
-      `}>
-        <div className="text-center">
-          <div className="text-lg md:text-xl">{planetData.emoji}</div>
-          <div className="text-xs">{cell.type || cell.level}</div>
+      `}
+      style={{
+        background: planetData.pattern,
+        boxShadow: cell.type === 'sun' ? '0 0 20px rgba(255, 215, 0, 0.6)' : '0 4px 12px rgba(0, 0, 0, 0.3)'
+      }}>
+        {/* Planet surface details */}
+        <div className="absolute inset-0 rounded-full">
+          {/* Add some surface texture */}
+          <div className="absolute top-2 left-2 w-1 h-1 bg-black opacity-20 rounded-full"></div>
+          <div className="absolute bottom-3 right-3 w-1.5 h-1.5 bg-white opacity-30 rounded-full"></div>
+          {cell.level >= 3 && (
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-white opacity-20 rounded-full"></div>
+          )}
+          
+          {/* Saturn's rings */}
+          {planetData.name === 'Saturn' && (
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full h-0.5 bg-gradient-to-r from-transparent via-yellow-200 to-transparent opacity-60 rotate-12"></div>
+          )}
+          
+          {/* Planet level indicator */}
+          <div className="absolute bottom-0 right-0 bg-black bg-opacity-50 text-white text-xs px-1 rounded-tl-md">
+            {cell.type || cell.level}
+          </div>
         </div>
+        
+        {/* Atmosphere glow for gas giants */}
+        {[5, 6, 7, 8].includes(cell.level) && (
+          <div className="absolute inset-0 rounded-full bg-gradient-radial from-transparent to-white opacity-10"></div>
+        )}
       </div>
     );
   };
